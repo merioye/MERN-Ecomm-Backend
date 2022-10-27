@@ -1,29 +1,30 @@
-class UserDto{
+class UserDto {
     _id;
     method;
     name;
     email;
     phone;
     avatar;
+    cloudinaryId;
     role;
     address;
     createdAt;
 
-    constructor(user){
+    constructor(user) {
         this._id = user._id;
         this.method = user.method;
         this.name = user.name;
-        this.email = user.email ? user.email : '';
-        this.phone = user.phone ? user.phone : '';
-        this.avatar = user.avatar ? user.avatar : '';
+        this.email = user.email ? user.email : "";
+        this.phone = user.phone ? user.phone : "";
+        this.avatar = user.avatar ? user.avatar : "";
+        this.cloudinaryId = user.cloudinaryId ? user.cloudinaryId : "";
         this.role = user.role;
-        this.address = user.address ? user.address : '';
+        this.address = user.address ? user.address : "";
         this.createdAt = user.createdAt;
     }
 }
 
 module.exports = UserDto;
-
 
 /*
 => Dto stands for data transfer object which is basically used to tranform the data. In this 'UserDto'
