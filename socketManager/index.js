@@ -18,6 +18,17 @@ const socketManager = (io, socket) => {
         io.to(onlineUsers[userId]).emit("orderStatusUpdate", updatedOrder);
     });
 
+    socket.on(
+        "newMessage",
+        ({ newMessage, updatedConversation, userId, senderName }) => {
+            io.to(onlineUsers[userId]).emit("newMessage", {
+                newMessage,
+                updatedConversation,
+                senderName,
+            });
+        }
+    );
+
     socket.on("disconnect", () => {
         for (let userId in onlineUsers) {
             if (onlineUsers[userId] === socket.id) {

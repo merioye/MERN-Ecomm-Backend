@@ -5,6 +5,7 @@ const dashboardController = require("./controllers/dashboard");
 const productController = require("./controllers/product");
 const cartController = require("./controllers/cart");
 const orderController = require("./controllers/order");
+const chatController = require("./controllers/chat");
 const authMiddleware = require("./middlewares/auth");
 const adminAuthMiddleware = require("./middlewares/adminAuth");
 const uploadMiddleware = require("./middlewares/upload");
@@ -211,5 +212,14 @@ router.get("/payment", authMiddleware, cartController.getPaymentPageData);
 router.post("/orders", authMiddleware, orderController.placeOrder);
 router.get("/orders", authMiddleware, orderController.getUserPageOrders);
 router.get("/orders/:orderId", authMiddleware, orderController.getSingleOrder);
+
+router.get("/chats", authMiddleware, chatController.getAllChats);
+router.get("/chats/:chatId", authMiddleware, chatController.getChatMessages);
+router.put("/chats/:chatId", authMiddleware, chatController.updateChat);
+router.patch(
+    "/chats/:chatId",
+    authMiddleware,
+    chatController.updateChatLastMessageReadBy
+);
 
 module.exports = router;
