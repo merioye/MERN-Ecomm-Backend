@@ -1,60 +1,63 @@
-const jwt = require('jsonwebtoken');
-const RefreshTokenModel = require('../models/refreshToken');
+const jwt = require("jsonwebtoken");
+const RefreshTokenModel = require("../models/refreshToken");
 
 const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
 
-class TokenService{
-    generateTokens = async (user)=>{
-        try{
-            const accessToken = await jwt.sign(user, accessTokenSecret, { expiresIn: '1d' });
-            const refreshToken = await jwt.sign(user, refreshTokenSecret, { expiresIn: '1y' });
+class TokenService {
+    generateTokens = async (user) => {
+        try {
+            const accessToken = await jwt.sign(user, accessTokenSecret, {
+                expiresIn: "1d",
+            });
+            const refreshToken = await jwt.sign(user, refreshTokenSecret, {
+                expiresIn: "1y",
+            });
             return { accessToken, refreshToken };
-        }catch(e){
+        } catch (e) {
             console.log(e);
             throw new Error();
         }
-    }
+    };
 
-    verifyAccessToken = async (token, res)=>{
-        try{
+    verifyAccessToken = async (token, res) => {
+        try {
             return await jwt.verify(token, accessTokenSecret);
-        }catch(e){
+        } catch (e) {
             console.log(e);
             return res.status(401).json({
-                message: 'Invalid token'
+                message: "Invalid token",
             });
         }
-    }
+    };
 
-    verifyRefreshToken = async (token, res)=>{
-        try{
+    verifyRefreshToken = async (token, res) => {
+        try {
             return await jwt.verify(token, refreshTokenSecret);
-        }catch(e){
+        } catch (e) {
             console.log(e);
             return res.status(401).json({
-                message: 'Invalid token'
+                message: "Invalid token",
             });
         }
-    }
+    };
 
-    saveRefreshTokenInDB = async (refreshToken)=>{
-        try{
+    saveRefreshTokenInDB = async (refreshToken) => {
+        try {
             const newRefreshToken = new RefreshTokenModel(refreshToken);
             await newRefreshToken.save();
-        }catch(e){
+        } catch (e) {
             console.log(e);
             throw new Error();
         }
+    };
 
-    }
-
-    setTokenInCookies = (res, tokenName, token, expiry)=>{
+    setTokenInCookies = (res, tokenName, token, expiry) => {
         res.cookie(tokenName, token, {
             expires: new Date(Date.now() + expiry),
-            httpOnly: true
-        }); 
-    }
+            httpOnly: true,
+        });
+    };
 }
 
-module.exports = new TokenService;
+module.exports = new TokenService();

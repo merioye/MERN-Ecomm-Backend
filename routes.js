@@ -6,6 +6,7 @@ const productController = require("./controllers/product");
 const cartController = require("./controllers/cart");
 const orderController = require("./controllers/order");
 const chatController = require("./controllers/chat");
+const wishlistController = require("./controllers/wishlist");
 const authMiddleware = require("./middlewares/auth");
 const adminAuthMiddleware = require("./middlewares/adminAuth");
 const uploadMiddleware = require("./middlewares/upload");
@@ -220,6 +221,22 @@ router.patch(
     "/chats/:chatId",
     authMiddleware,
     chatController.updateChatLastMessageReadBy
+);
+
+router.post(
+    "/wishlists",
+    authMiddleware,
+    wishlistController.addProductToWishlist
+);
+router.get(
+    "/wishlists/wishlist",
+    authMiddleware,
+    wishlistController.getWishlist
+);
+router.patch(
+    "/wishlists/wishlist",
+    authMiddleware,
+    wishlistController.removeProductFromWishlist
 );
 
 module.exports = router;

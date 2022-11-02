@@ -1,11 +1,11 @@
-class BrandDto{
+class BrandDto {
     _id;
     name;
     logoUrl;
     isFeatured;
     createdAt;
 
-    constructor(brand){
+    constructor(brand) {
         this._id = brand._id;
         this.name = brand.name;
         this.logoUrl = brand.logoUrl;

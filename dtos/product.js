@@ -1,4 +1,4 @@
-class ProductDto{
+class ProductDto {
     _id;
     name;
     category;
@@ -13,7 +13,7 @@ class ProductDto{
     reviews;
     createdAt;
 
-    constructor(product){
+    constructor(product) {
         this._id = product._id;
         this.name = product.name;
         this.category = product.category;

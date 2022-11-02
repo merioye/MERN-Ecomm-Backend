@@ -1,11 +1,11 @@
-class CategoryDto{
+class CategoryDto {
     _id;
     name;
     logoUrl;
     isPublished;
     createdAt;
 
-    constructor(category){
+    constructor(category) {
         this._id = category._id;
         this.name = category.name;
         this.logoUrl = category.logoUrl;

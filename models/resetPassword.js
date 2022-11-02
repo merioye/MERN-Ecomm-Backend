@@ -1,17 +1,19 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const resetPasswordSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true
+const resetPasswordSchema = new mongoose.Schema(
+    {
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+        },
+        resetPasswordToken: {
+            type: String,
+            required: true,
+        },
     },
-    resetPasswordToken: {
-        type: String,
-        required: true
-    }
-}, { timestamps: true });
+    { timestamps: true }
+);
 
-resetPasswordSchema.index({ 'updatedAt': 1 }, { expireAfterSeconds: 3600 });
+resetPasswordSchema.index({ updatedAt: 1 }, { expireAfterSeconds: 3600 });
 
-
-module.exports = mongoose.model('ResetPassword', resetPasswordSchema);
+module.exports = mongoose.model("ResetPassword", resetPasswordSchema);
