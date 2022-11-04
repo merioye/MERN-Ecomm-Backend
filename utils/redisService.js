@@ -46,12 +46,41 @@ class RedisService {
         }
     };
 
-    getOrdersByUserIdFromList = async (key, id, toSkip, toFetch) => {
+    getOrdersByUserIdFromList = async (key, id, toSkip, toFetch, all) => {
         try {
             const stringifyValues = await redisClient.LRANGE(key, 0, -1);
             const parsedValues = stringifyValues.map((val) => JSON.parse(val));
             const matchedValues = parsedValues.filter(
                 (val) => String(val.user._id) === String(id)
+            );
+
+            if (all) {
+                return {
+                    values: matchedValues,
+                    totalCount: parsedValues.length,
+                };
+            }
+
+            const values = matchedValues.slice(toSkip, toSkip + toFetch);
+            const matchedCount = matchedValues.length;
+
+            const totalValues = await redisClient.LLEN(key);
+            return {
+                totalCount: totalValues,
+                values: values,
+                matchedCount: matchedCount,
+            };
+        } catch (e) {
+            throw e;
+        }
+    };
+
+    getReviewsByProductNameFromList = async (key, toSkip, toFetch, search) => {
+        try {
+            const stringifyValues = await redisClient.LRANGE(key, 0, -1);
+            const parsedValues = stringifyValues.map((val) => JSON.parse(val));
+            const matchedValues = parsedValues.filter((val) =>
+                val.product.name.toLowerCase().includes(search.toLowerCase())
             );
             const values = matchedValues.slice(toSkip, toSkip + toFetch);
             const matchedCount = matchedValues.length;

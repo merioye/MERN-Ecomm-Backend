@@ -15,8 +15,7 @@ class ProductController {
         const p2AvgRating =
             p2.reviews.reduce((acc, review) => acc + review.rating, 0) /
             p2.reviews.length;
-
-        if (p1AvgRating > p2AvgRating) {
+        if ((p1AvgRating || 0) > (p2AvgRating || 0)) {
             return -1;
         } else {
             return 1;

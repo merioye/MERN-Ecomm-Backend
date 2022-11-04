@@ -43,7 +43,7 @@ const authUser = async (request, accessToken, refreshToken, profile, done) => {
             method: profile.provider,
             name: profile.displayName,
             email: profile.emails[0].value,
-            avatar: profile.photos[0].value,
+            avatar: "",
         });
 
         const transformedUser = new UserDto(newUser);

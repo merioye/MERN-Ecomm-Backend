@@ -6,6 +6,7 @@ const productController = require("./controllers/product");
 const cartController = require("./controllers/cart");
 const orderController = require("./controllers/order");
 const chatController = require("./controllers/chat");
+const reviewController = require("./controllers/review");
 const wishlistController = require("./controllers/wishlist");
 const authMiddleware = require("./middlewares/auth");
 const adminAuthMiddleware = require("./middlewares/adminAuth");
@@ -38,13 +39,15 @@ router.post(
     "/resetPassword/:resetPasswordToken/:userId",
     authController.resetPassword
 );
+router.get("/logout", authMiddleware, authController.logout);
 router.get("/users/user", authMiddleware, authController.getUser);
 router.put(
-    "/users/user",
+    "/profiles/profile",
     authMiddleware,
     uploadMiddleware.single("image"),
-    authController.updateUser
+    authController.updateProfile
 );
+router.get("/profiles/profile", authMiddleware, authController.getProfileData);
 
 // admin routes
 router.post(
@@ -197,6 +200,13 @@ router.get(
     orderController.getOrderNotifications
 );
 
+router.get("/admin/reviews", adminAuthMiddleware, reviewController.getReviews);
+router.delete(
+    "/admin/reviews/:reviewId",
+    adminAuthMiddleware,
+    reviewController.deleteReview
+);
+
 // application routes
 router.get("/products/home", productController.getHomeData);
 router.get("/products/filtered", productController.getFilteredProducts);
@@ -238,5 +248,7 @@ router.patch(
     authMiddleware,
     wishlistController.removeProductFromWishlist
 );
+
+router.post("/reviews", authMiddleware, reviewController.addReview);
 
 module.exports = router;

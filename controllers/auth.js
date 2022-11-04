@@ -145,10 +145,12 @@ class AuthController {
             await redisService.pushValueToList("users", req.user, true);
             await redisService.setValue(`user_${req.user._id}`, req.user);
 
-            res.redirect("/");
+            res.redirect(process.env.CLIENT_APP_URL);
         } catch (e) {
             console.log(e);
-            res.redirect(`/login?error=${errorText}`);
+            res.redirect(
+                `${process.env.CLIENT_APP_URL}/login?error=${errorText}`
+            );
         }
     };
 
@@ -178,7 +180,7 @@ class AuthController {
                     role: userData.role,
                 });
 
-            await RefreshTokenModel.findByIdAndUpdate(
+            await RefreshTokenModel.updateOne(
                 { _id: token._id },
                 { $set: { refreshToken: refreshToken } }
             );
@@ -279,7 +281,7 @@ class AuthController {
                 { $set: { password: hashedPassword } }
             );
 
-            await ResetPasswordModel.findByIdAndDelete({ _id: token._id });
+            await ResetPasswordModel.deleteOne({ _id: token._id });
 
             res.status(200).json({
                 message: "Password has been reseted successfully",
@@ -311,7 +313,7 @@ class AuthController {
         }
     };
 
-    updateUser = async (req, res, next) => {
+    updateProfile = async (req, res, next) => {
         try {
             const { _id } = req.userData;
             if (!req.file && !Object.keys(req.body).length)
@@ -381,6 +383,88 @@ class AuthController {
 
             res.status(200).json({
                 user: transformedUser,
+            });
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    getProfileData = async (req, res, next) => {
+        try {
+            const { _id } = req.userData;
+
+            // userData
+            let user = await redisService.getValue(`user_${_id}`);
+            if (!user) {
+                user = await UserModel.findById({ _id: _id }).populate(
+                    "address"
+                );
+                if (!user) return next(createError(404, "User not found"));
+
+                user = new UserDto(user);
+                await redisService.setValue(`user_${_id}`, user);
+            }
+
+            // ordersData
+            let ordersData = await redisService.getOrdersByUserIdFromList(
+                "orders",
+                _id,
+                null,
+                null,
+                true
+            );
+            if (!ordersData.values.length && ordersData.totalCount === 0) {
+                const dbOrders = await OrderModel.find({ user: _id }).populate({
+                    path: "user",
+                    select: "name phone address createdAt",
+                    populate: { path: "address", model: "Address" },
+                });
+                for (let dbOrder of dbOrders) {
+                    await redisService.pushValueToList("orders", dbOrder);
+                }
+                ordersData = await redisService.getOrdersByUserIdFromList(
+                    "orders",
+                    _id,
+                    null,
+                    null,
+                    true
+                );
+            }
+
+            const awaitingPayments = ordersData.values.filter(
+                (o) => o.paymentReceived === false
+            );
+            const awaitingDelivery = ordersData.values.filter(
+                (o) => o.status !== "delivered" && o.status !== "cancelled"
+            );
+            const delivered = ordersData.values.filter(
+                (o) => o.status === "delivered"
+            );
+
+            res.status(200).json({
+                user,
+                totalOrdersCount: ordersData.values.length,
+                awaitingPaymentCount: awaitingPayments.length,
+                deliveredCount: delivered.length,
+                awaitingDeliveryCount: awaitingDelivery.length,
+            });
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    logout = async (req, res, next) => {
+        try {
+            const { _id } = req.userData;
+            const { refreshToken } = req.cookies;
+
+            await RefreshTokenModel.deleteOne({ userId: _id, refreshToken });
+
+            res.clearCookie("accessToken");
+            res.clearCookie("refreshToken");
+
+            res.status(200).json({
+                message: "User logged out successfully",
             });
         } catch (err) {
             next(err);
